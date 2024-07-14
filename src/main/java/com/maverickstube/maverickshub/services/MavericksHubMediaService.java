@@ -13,10 +13,13 @@ import com.maverickstube.maverickshub.dto.requests.UploadMediaFileRequest;
 import com.maverickstube.maverickshub.dto.response.MediaResponse;
 import com.maverickstube.maverickshub.dto.response.UpLoadMediaResponse;
 import com.maverickstube.maverickshub.dto.response.UpdateMediaResponse;
+import com.maverickstube.maverickshub.exception.MediaNotFoundException;
 import com.maverickstube.maverickshub.exception.MediaUpdateFailedException;
 import com.maverickstube.maverickshub.exception.MediaUploadFailedException;
 import com.maverickstube.maverickshub.repository.MediaRepository;
+import jakarta.transaction.Transactional;
 import lombok.extern.slf4j.Slf4j;
+import org.hibernate.Hibernate;
 import org.modelmapper.ModelMapper;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
@@ -58,9 +61,12 @@ public class MavericksHubMediaService implements MediaService {
     }
 
     @Override
-    public Media getMediaById(Long id) {
-        return mediaRepository.findById(id).orElseThrow(()-> new MediaUploadFailedException("failed to upload media"));
+    @Transactional
+    public Media getMediaById(Long mediaId) {
+        return mediaRepository.findById(mediaId)
+                .orElseThrow(() -> new MediaNotFoundException("Media not found: " + mediaId));
     }
+
 
     @Override
     public UpLoadMediaResponse uploadVideo(UploadMediaFileRequest request) {

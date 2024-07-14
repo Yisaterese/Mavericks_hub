@@ -21,9 +21,11 @@ public class UserServiceTest {
     @Test
     public void registerUserTest(){
         CreateUserRequest createUserRequest = new CreateUserRequest();
-        createUserRequest.setEmail("email");
-        createUserRequest.setPassword("123");
+        createUserRequest.setEmail("victormsonter1@gmail.com");
+        createUserRequest.setPassword("password");
         CreateUserResponse response = userService.registerUser(createUserRequest);
+        assertThat(response).isNotNull();
+        assertThat(response.getMessage()).isEqualTo("success");
 
     }
 

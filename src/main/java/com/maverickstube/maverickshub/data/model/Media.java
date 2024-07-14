@@ -34,6 +34,8 @@ public class Media {
     @JsonDeserialize(using = LocalDateTimeDeserializer.class)
     private LocalDateTime timeCreated;
     @Setter(AccessLevel.NONE)
+    @JsonSerialize(using = LocalDateTimeSerializer.class)
+    @JsonDeserialize(using = LocalDateTimeDeserializer.class)
     private LocalDateTime timeUpdated;
     @ManyToOne
     private User uploaderId;

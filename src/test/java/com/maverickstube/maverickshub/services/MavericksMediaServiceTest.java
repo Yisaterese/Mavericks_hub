@@ -39,7 +39,7 @@ import static org.springframework.test.web.servlet.result.MockMvcResultHandlers.
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
 @SpringBootTest
-@Sql(scripts = {"/db/data.sql"})
+    @Sql(scripts = {"/db/data.sql"})
 @AutoConfigureMockMvc
 public class MavericksMediaServiceTest {
     @Autowired
@@ -94,7 +94,9 @@ public class MavericksMediaServiceTest {
         updateMediaRequest.setCategory(HORROR);
         updateMediaRequest.setDescription("terrifying");
         UpdateMediaResponse updateMediaResponse = new UpdateMediaResponse();
-        Media media = mediaService.getMediaById(updateMediaResponse.getId());
+        Media media = mediaService.getMediaById(100L);
+        mediaService.updateMedia(updateMediaRequest);
+        media = mediaService.getMediaById(100L);
 
         assertThat(media).isNotNull();
         assertThat(media.getId()).isNotNull();
@@ -106,7 +108,9 @@ public class MavericksMediaServiceTest {
     public void updateMediaTest1() throws JsonPointerException {
         Category category = mediaService.getMediaById(100L).getCategory();
         assertThat(category).isNotEqualTo(HORROR);
-        List<JsonPatchOperation> operation = List.of(new ReplaceOperation(new JsonPointer("/category"), new TextNode(HORROR.name())));
+        List<JsonPatchOperation> operation = List.of(
+                new ReplaceOperation(new JsonPointer("/category"),
+                new TextNode(HORROR.name())));
         JsonPatch updateMediaRequest = new JsonPatch(operation);
         UpdateMediaResponse response = mediaService.updateMedia(100L,
                 updateMediaRequest);

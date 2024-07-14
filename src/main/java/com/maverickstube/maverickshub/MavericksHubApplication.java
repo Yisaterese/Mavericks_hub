@@ -4,10 +4,10 @@ import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
 
 @SpringBootApplication
-public class MaverickshubApplication {
+public class MavericksHubApplication {
 
 	public static void main(String[] args) {
-		SpringApplication.run(MaverickshubApplication.class, args);
+		SpringApplication.run(MavericksHubApplication.class, args);
 	}
 
 }

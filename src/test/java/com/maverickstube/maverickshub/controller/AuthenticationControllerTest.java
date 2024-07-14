@@ -34,9 +34,18 @@ public class AuthenticationControllerTest {
                 .content(new ObjectMapper().writeValueAsBytes(request)))
                 .andExpect(status().isOk())
                 .andDo(print());
-
-
     }
 
+    @Test
+    public void authenticateUserWithInvalidCredentialsTest() throws Exception {
+        LoginRequest request = new LoginRequest();
+        request.setUsername("victormsonter@gmail.com");
+        request.setPassword("invalid password");
+        mockmvc.perform(post("/api/v1/auth")
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content(new ObjectMapper().writeValueAsBytes(request)))
+                .andExpect(status().isUnauthorized())
+                .andDo(print());
 
+    }
 }

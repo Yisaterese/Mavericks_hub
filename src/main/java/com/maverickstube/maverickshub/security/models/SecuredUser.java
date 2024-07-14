@@ -21,11 +21,12 @@ public class SecuredUser implements UserDetails {
     public String getPassword() {
         return user.getPassword();
     }
-    //TODO:DANGER, TO BE REMOVED
 
     @Override
     public Collection<? extends GrantedAuthority> getAuthorities() {
-        return List.of(new SimpleGrantedAuthority("USER"));
+        return user.getAuthorities().stream().map(authority
+                -> new SimpleGrantedAuthority(authority.name()))
+                .toList();
     }
 
 

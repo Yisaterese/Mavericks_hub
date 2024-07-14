@@ -2,9 +2,12 @@ truncate table users cascade;
 truncate table media cascade;
 
 insert into users(id, email,password,time_created) values
-(200,'teresejosephyisa@gmail.com','password','2024-06-04T15:03:03.7992009700' ),
-(201,'yisajoseph98@gmail.com','password','2024-06-04T15:03:03.7992009700' ),
-(202,'victormsonter@gmail.com','password','2024-06-04T15:03:03.7992009700');
+(200,'teresejosephyisa@gmail.com','$2a$10$G4F85R19inprLR1k38CrZenOsUFY7fZVbh9BC4qpmInfcPIFRlhxm
+','2024-06-04T15:03:03.7992009700' ),
+(201,'yisajoseph98@gmail.com','$2a$10$G4F85R19inprLR1k38CrZenOsUFY7fZVbh9BC4qpmInfcPIFRlhxm
+','2024-06-04T15:03:03.7992009700' ),
+(202,'victormsonter@gmail.com','$2a$10$G4F85R19inprLR1k38CrZenOsUFY7fZVbh9BC4qpmInfcPIFRlhxm
+','2024-06-04T15:03:03.7992009700');
 
 insert into media (id, category,description,url,time_created,uploader_id_id) values
 (100, 'ROMANCE', 'media 1', 'https://cloudinary.com/media1','2024-06-04T15:03:03.7992009700',200),

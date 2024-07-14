@@ -4,11 +4,14 @@ import com.auth0.jwt.JWT;
 import com.auth0.jwt.algorithms.Algorithm;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.maverickstube.maverickshub.dto.requests.LoginRequest;
+import com.maverickstube.maverickshub.dto.response.BaseResponse;
+import com.maverickstube.maverickshub.dto.response.LoginResponse;
 import jakarta.servlet.FilterChain;
 import jakarta.servlet.ServletException;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import lombok.AllArgsConstructor;
+import org.springframework.http.HttpStatus;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.Authentication;
@@ -21,8 +24,6 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.time.Instant;
 import java.util.Collection;
-import java.util.HashMap;
-import java.util.Map;
 
 @AllArgsConstructor
 public class CustomUsernamePasswordAuthenticationFilter extends UsernamePasswordAuthenticationFilter {
@@ -55,19 +56,30 @@ public class CustomUsernamePasswordAuthenticationFilter extends UsernamePassword
 
     @Override
     protected void successfulAuthentication(HttpServletRequest request, HttpServletResponse response, FilterChain chain, Authentication authResult) throws IOException, ServletException {
-//        super.successfulAuthentication(request, response, chain, authResult);
-       String token = JWT.create()
-                .withIssuer("mavericks_hub")
-                .withArrayClaim("roles", getClamsForm(authResult.getAuthorities()))
-                .withExpiresAt(Instant.now().plusSeconds(24 * 60 * 60))
-                .sign(Algorithm.HMAC512("secret"));
+        final String token = generateAccessToken(authResult);
+        System.out.println(token);
+        LoginResponse loginResponse = new LoginResponse();
+       loginResponse.setToken(token);
+       loginResponse.setMessage("successful authentication");
+       BaseResponse<LoginResponse> authenticationResponse = new BaseResponse<>();
+       authenticationResponse.setCode(HttpStatus.OK.value());
+       authenticationResponse.setData(loginResponse);
+       authenticationResponse.setStatus(true);
+       response.getOutputStream().write(objectMapper.writeValueAsBytes(authenticationResponse));
+       response.flushBuffer();
+       chain.doFilter(request,response);
 
-      Map<String, String> res = new HashMap<String, String>();
-        res.put("access_token", token);
-        response.getOutputStream().write(objectMapper.writeValueAsBytes(res));
-        response.flushBuffer();
-        chain.doFilter(request,response);
     }
+
+    private static String generateAccessToken(Authentication authResult) {
+        String token = JWT.create()
+                 .withIssuer("mavericks_hub")
+                 .withArrayClaim("roles", getClamsForm(authResult.getAuthorities()))
+                 .withExpiresAt(Instant.now().plusSeconds(24 * 60 * 60))
+                 .sign(Algorithm.HMAC512("secret"));
+        return token;
+    }
+
     private static  String[] getClamsForm(Collection<? extends GrantedAuthority> authorities) {
        return authorities.stream()
                .map((grantedAuthority) -> grantedAuthority.getAuthority())
@@ -75,8 +87,24 @@ public class CustomUsernamePasswordAuthenticationFilter extends UsernamePassword
     }
 
     @Override
-    protected void unsuccessfulAuthentication(HttpServletRequest request, HttpServletResponse response, AuthenticationException failed) throws IOException, ServletException {
-//        super.unsuccessfulAuthentication(request, response, failed);
+    protected void unsuccessfulAuthentication(HttpServletRequest request,
+                                              HttpServletResponse response,
+                                              AuthenticationException exception) throws IOException, ServletException {
+        LoginResponse loginResponse = new LoginResponse();
+        loginResponse.setMessage(exception.getMessage());
+        BaseResponse<LoginResponse> baseResponse = new BaseResponse<>();
+        baseResponse.setData(loginResponse);
+        baseResponse.setStatus(false);
+        baseResponse.setCode(HttpStatus.UNAUTHORIZED.value());
+
+        response.getOutputStream()
+                .write(objectMapper
+                        .writeValueAsBytes(baseResponse));
+        response.setStatus(HttpStatus.UNAUTHORIZED.value());
+        response.flushBuffer();
+
+
+        //        super.unsuccessfulAuthentication(request, response, failed);
     }
 
 }

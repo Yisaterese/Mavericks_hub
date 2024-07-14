@@ -1,5 +1,6 @@
 package com.maverickstube.maverickshub.services;
 
+import com.maverickstube.maverickshub.data.model.Authority;
 import com.maverickstube.maverickshub.data.model.User;
 import com.maverickstube.maverickshub.dto.requests.CreateUserRequest;
 import com.maverickstube.maverickshub.dto.response.CreateUserResponse;
@@ -10,6 +11,8 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
+import java.util.HashSet;
+
 
 @Service
 
@@ -17,9 +20,11 @@ public class MavericksUserService implements UserService{
 
     private final UserRepository userRepository;
     private final ModelMapper mapper;
-    private PasswordEncoder passwordEncoder;
+    private final PasswordEncoder passwordEncoder;
 @Autowired
-    public MavericksUserService(UserRepository userRepository, ModelMapper mapper, PasswordEncoder passwordEncoder) {
+    public MavericksUserService(UserRepository userRepository,
+                                ModelMapper mapper,
+                                PasswordEncoder passwordEncoder) {
         this.userRepository = userRepository;
         this.mapper = mapper;
         this.passwordEncoder = passwordEncoder;
@@ -29,7 +34,10 @@ public class MavericksUserService implements UserService{
     public CreateUserResponse registerUser(CreateUserRequest request){
         User user = mapper.map(request,User.class);
         user.setPassword(passwordEncoder.encode(request.getPassword()));
-        userRepository.save(user);
+        user.setAuthorities(new HashSet<>());
+        var authorities = user.getAuthorities();
+        authorities.add(Authority.USER);
+        user = userRepository.save(user);
         var response = mapper.map(user,CreateUserResponse.class);
         response.setMessage("success");
         return response;
